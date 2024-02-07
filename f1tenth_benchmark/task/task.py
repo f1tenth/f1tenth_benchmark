@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from f1tenth_benchmark.monitor.monitor import Monitor
 

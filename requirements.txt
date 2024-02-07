@@ -1,2 +1,2 @@
 gymnasium
-git+https://github.com/f1tenth/f1tenth_planning@v1.0.0
+git+https://github.com/f1tenth/f1tenth_planning@10-update-to-pyproject-toml#egg=f1tenth_planning

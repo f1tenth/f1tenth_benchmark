@@ -1,8 +1,28 @@
+from typing import Any
+
 from f1tenth_benchmark.agent.agent import Agent
+from f1tenth_planning.control.pure_pursuit.pure_pursuit import PurePursuitPlanner
 
+F110_AGENT_REGISTRY = {
+    "pure_pursuit": PurePursuitPlanner,
+}
+class F110Agent(Agent):
 
-def make_f110_agent(agent_name: str) -> Agent:
-    if agent_name == "pure_pursuit":
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self._agent = F110_AGENT_REGISTRY[name]()
+
+    def __call__(self, observation, agent_state):
+        return self._agent.plan(observation)
+
+    def reset(self) -> Any | None:
         pass
-    else:
-        raise ValueError(f"Unknown agent name: {agent_name}")
+
+    def save(self, path: str) -> None:
+        pass
+
+    def load(self, path: str) -> None:
+        pass
+
+
+
