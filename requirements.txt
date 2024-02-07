@@ -1,0 +1,2 @@
+gymnasium
+git+https://github.com/f1tenth/f1tenth_planning@v1.0.0
