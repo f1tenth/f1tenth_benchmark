@@ -1,6 +1,8 @@
 from abc import abstractmethod, ABC
 from typing import Any
 
+from f1tenth_benchmark.scene.scene import Scene
+
 
 class Agent(ABC):
 
@@ -9,7 +11,7 @@ class Agent(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def reset(self) -> Any | None:
+    def reset(self, scene: Scene) -> Any | None:
         raise NotImplementedError()
 
     @abstractmethod

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Callable
 
-from f1tenth_benchmark.monitor.monitor import Monitor
+from f1tenth_benchmark.common.simulation import Simulation
 
 
 class Task(ABC):
@@ -30,6 +30,7 @@ class Task(ABC):
     def get_next_scene(self) -> Any:
         raise NotImplementedError()
 
+    @property
     @abstractmethod
-    def get_monitor(self) -> Monitor:
+    def monitor(self) -> Callable[[Simulation], dict]:
         raise NotImplementedError()

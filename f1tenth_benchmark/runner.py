@@ -1,4 +1,6 @@
 import logging
+import warnings
+from typing import Type, Callable
 
 import numpy as np
 
@@ -13,38 +15,45 @@ class Runner:
         self._agent = agent
         self._log_dir = log_dir
 
+        self._logger = logging.getLogger(__name__)
+
     def run(self, n_episodes: int) -> None:
-        monitor = self._task.get_monitor()
+        agent = self._agent
 
         while n_episodes > 0:
             logging.info(f"Remaining {n_episodes} episodes...")
 
             scene = self._task.get_next_scene()
+            if scene is None:
+                logging.info("No more scenes available.")
+                break
+
             sim = Simulation()
 
-            state = scene.reset()
-            agent_state = self._agent.reset()
+            agent_state = agent.reset(scene=scene)
+            scene.reset()
 
-            sim.add(state=state, action=None, agent_info=agent_state, scene_info=None)
+            scene_state = scene.get_state()
+            sim.add(state=scene_state, action=None, agent_state=agent_state)
 
             while not scene.is_done():
-                action, agent_info = self._agent(
-                    observation=state, agent_state=agent_state
+                agent_obs = scene.observe("agent_0")
+                action, agent_state = agent(
+                    observation=agent_obs, agent_state=agent_state
                 )
-                state, scene_info = scene.step(action)
+
+                actions = np.array([action])
+                scene.step(action=actions)
+
                 sim.add(
-                    state=state,
+                    state=scene.get_state(),
                     action=action,
-                    agent_info=agent_info,
-                    scene_info=scene_info,
+                    agent_state=agent_state,
                 )
 
-            metrics = monitor.evaluate(sim)
+            metrics = self._task.monitor(sim)
+            sim.add(metrics=metrics)
 
-            if self._log_dir is not None:
-                sim.save(f"episode_{n_episodes}_sim.npz")
-                np.savez_compressed(
-                    f"{self._log_dir}/episode_{n_episodes}_metrics.npz", **metrics
-                )
+            sim.save(f"{self._log_dir}/episode_{n_episodes}")
 
             n_episodes -= 1

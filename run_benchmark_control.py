@@ -1,3 +1,5 @@
+import logging
+
 from f1tenth_benchmark.agent.f110_agent import F110Agent
 from f1tenth_benchmark.runner import Runner
 from f1tenth_benchmark.task.task_control import TaskControl
@@ -6,6 +8,8 @@ from f1tenth_benchmark.task.task_control import TaskControl
 def main():
     n_episodes = 10
     agent_name = "pure_pursuit"
+
+    logging.basicConfig(level=logging.DEBUG)
 
     task = TaskControl()
     agent = F110Agent(name=agent_name)
