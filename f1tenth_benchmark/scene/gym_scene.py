@@ -5,7 +5,6 @@ from f1tenth_benchmark.scene.scene import Scene, Observation, Action
 
 
 class GymScene(Scene):
-
     def __init__(self, env: gym.Env, options: dict, termination_fn: callable) -> None:
         self._env = env
         self._options = options

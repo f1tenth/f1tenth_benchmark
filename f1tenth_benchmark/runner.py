@@ -23,13 +23,15 @@ class Runner:
         desclen, trunc = 35, "..."
         desc = f"Agent: {agent.name}, Task: {self._task.name}"
         desc = desc.ljust(desclen, " ")
-        desc = desc[:desclen - len(trunc)] + trunc if len(desc) > desclen else desc
+        desc = desc[: desclen - len(trunc)] + trunc if len(desc) > desclen else desc
 
         all_metrics = {}
         for i in tqdm(range(n_episodes), desc=desc):
             scene = self._task.get_next_scene()
             if scene is None:
-                self._txt_logger.info("No more scenes available. Stopping the benchmark.")
+                self._txt_logger.info(
+                    "No more scenes available. Stopping the benchmark."
+                )
                 break
 
             sim = Simulation()
@@ -42,16 +44,13 @@ class Runner:
 
             while not scene.is_done():
                 agent_obs = scene.observe("agent_0")
-                action = agent(
-                    observation=agent_obs
-                )
+                action = agent(observation=agent_obs)
 
                 actions = np.array([action])
                 scene.step(action=actions)
 
                 sim.add(
-                    state=scene.get_state(),
-                    action=action,
+                    state=scene.get_state(), action=action,
                 )
 
             metrics = monitor(scene=scene, sim=sim)

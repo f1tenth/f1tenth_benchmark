@@ -7,7 +7,12 @@ import numpy as np
 from f1tenth_planning.utils.utils import nearest_point
 
 from f1tenth_benchmark.common.simulation import Simulation
-from f1tenth_benchmark.common.termination_fn import Timeout, OnAnyTermination, AnyCrossedFinishLine, DefaultTermination
+from f1tenth_benchmark.common.termination_fn import (
+    Timeout,
+    OnAnyTermination,
+    AnyCrossedFinishLine,
+    DefaultTermination,
+)
 from f1tenth_benchmark.scene.gym_scene import GymScene
 from f1tenth_benchmark.task.task import Task
 import gymnasium as gym
@@ -35,28 +40,24 @@ class TaskControl(Task):
         self._metrics = {}
 
         self._env = gym.make(
-            "f110_gym:f110-v0",
-            config=self._config["env"],
-            render_mode=render_mode,
+            "f110_gym:f110-v0", config=self._config["env"], render_mode=render_mode,
         )
 
         # create a queue of ids to starting poses along the centerline
         n_points = self._config["n_pos_track"]
         raceline = self._env.unwrapped.track.raceline
         ids = np.linspace(0, len(raceline.xs) - 1, n_points + 1, dtype=int)[:-1]
-        self._poses = np.array([[raceline.xs[i], raceline.ys[i], raceline.yaws[i]] for i in ids])
+        self._poses = np.array(
+            [[raceline.xs[i], raceline.ys[i], raceline.yaws[i]] for i in ids]
+        )
         self._current_scene_id = 0
 
         # task termination
-        self._term_fns = OnAnyTermination(fns=[
-            Timeout(max_steps=6000),
-            DefaultTermination(),
-            AnyCrossedFinishLine()
-        ])
+        self._term_fns = OnAnyTermination(
+            fns=[Timeout(max_steps=6000), DefaultTermination(), AnyCrossedFinishLine()]
+        )
 
         self._logger = logging.getLogger(__name__)
-
-
 
     @property
     def name(self):
@@ -76,7 +77,11 @@ class TaskControl(Task):
         next_pose = self._poses[self._current_scene_id]
         self._current_scene_id += 1
 
-        return GymScene(self._env, options={"poses": np.array([next_pose])}, termination_fn=self._term_fns)
+        return GymScene(
+            self._env,
+            options={"poses": np.array([next_pose])},
+            termination_fn=self._term_fns,
+        )
 
     @property
     def monitor(self) -> Callable[[Simulation], dict]:
@@ -96,7 +101,9 @@ class TaskControl(Task):
             raceline_xys = np.array([track.raceline.xs, track.raceline.ys]).T
 
             # compute the nearest point on the raceline for each position
-            nearests = [nearest_point(positions[i], raceline_xys) for i in range(len(positions))]
+            nearests = [
+                nearest_point(positions[i], raceline_xys) for i in range(len(positions))
+            ]
 
             nearest_ids = np.array([near[3] for near in nearests])
             dist_to_them = [near[1] for near in nearests]
@@ -111,7 +118,9 @@ class TaskControl(Task):
                 "completion_rate": progress / track.raceline.ss[-1],
             }
 
-            self._logger.debug("\n\t" + "\n\t".join([f"{k}: {v:.5f}" for k, v in metrics.items()]))
+            self._logger.debug(
+                "\n\t" + "\n\t".join([f"{k}: {v:.5f}" for k, v in metrics.items()])
+            )
 
             return metrics
 

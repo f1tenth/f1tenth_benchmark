@@ -7,6 +7,8 @@ from f1tenth_benchmark.runner import Runner
 from f1tenth_benchmark.task.task_control import TaskControl
 
 import plotly.graph_objects as go
+
+
 def plot_metrics_bars(title, all_metrics):
     fig = go.Figure()
     for agent_name, metrics in all_metrics.items():
@@ -15,21 +17,15 @@ def plot_metrics_bars(title, all_metrics):
         x = list(mean_vs.keys())
         y = list(mean_vs.values())
         e = list(std_vs.values())
-        fig.add_trace(go.Bar(
-            name=agent_name,
-            x=x,
-            y=y,
-            error_y=dict(type='data', array=e),
-        ))
-
+        fig.add_trace(
+            go.Bar(name=agent_name, x=x, y=y, error_y=dict(type="data", array=e),)
+        )
 
     fig.update_layout(
-        title=title,
-        xaxis_title="Metric",
-        yaxis_title="Value",
-        barmode='group'
+        title=title, xaxis_title="Metric", yaxis_title="Value", barmode="group"
     )
     fig.show()
+
 
 def main():
     n_episodes = 10
@@ -50,8 +46,5 @@ def main():
     plot_metrics_bars(title="Benchmark Control", all_metrics=all_metrics)
 
 
-
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

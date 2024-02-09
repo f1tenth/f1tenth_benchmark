@@ -5,7 +5,6 @@ from f1tenth_benchmark.scene.scene import Scene
 
 
 class Agent(ABC):
-
     @property
     @abstractmethod
     def name(self) -> str:

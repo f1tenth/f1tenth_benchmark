@@ -22,14 +22,12 @@ class Simulation:
             else:
                 self._data[key] = [value]
 
-
     def get(self, key: str) -> Any:
-            return self._data[key]
+        return self._data[key]
 
     def save(self, path: str) -> None:
         logging.info(f"Saving simulation data to {path}...")
         warnings.warn("Saving simulation data is not yet implemented")
-
 
     def load(self, path: str) -> None:
         warnings.warn("Loading simulation data is not yet implemented")

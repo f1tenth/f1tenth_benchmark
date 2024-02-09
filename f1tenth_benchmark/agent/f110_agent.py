@@ -14,8 +14,9 @@ F110_AGENT_REGISTRY = {
     "stanley": StanleyPlanner,
     "lqr": LQRPlanner,
 }
-class F110Agent(Agent):
 
+
+class F110Agent(Agent):
     def __init__(self, name: str) -> None:
         self._name = name
         self._agent_fn = F110_AGENT_REGISTRY[name]
@@ -40,6 +41,3 @@ class F110Agent(Agent):
 
     def load(self, path: str) -> None:
         pass
-
-
-

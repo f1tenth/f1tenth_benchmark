@@ -10,7 +10,6 @@ from f1tenth_benchmark.scene.scene import Scene
 
 
 class TerminationFn(Callable):
-
     @abstractmethod
     def reset(self, scene: Scene) -> None:
         pass
@@ -80,7 +79,6 @@ class AnyCrossedFinishLine(TerminationFn):
 
         self._prev_ss = None
 
-
     def __call__(self, state, terminated, truncated, info) -> bool:
         # first get the s value from agents' positions
         new_ss = np.zeros(len(state))
@@ -92,8 +90,9 @@ class AnyCrossedFinishLine(TerminationFn):
         # check if any agent crossed the finish line (in the last meter of the track)
         half_finishline = 0.5  # meters
         if self._prev_ss is not None:
-            crossing = ((self._prev_ss > self._raceline_ss[-1] - 2 * half_finishline) &
-                        (new_ss < self._raceline_ss[-1] - half_finishline))
+            crossing = (self._prev_ss > self._raceline_ss[-1] - 2 * half_finishline) & (
+                new_ss < self._raceline_ss[-1] - half_finishline
+            )
             self._crossed = any(crossing)
 
         self._prev_ss = new_ss
@@ -115,6 +114,8 @@ class DefaultTermination(TerminationFn):
         done = terminated or truncated
 
         if done:
-            self._logger.debug(f"Default termination: terminated={terminated}, truncated={truncated}")
+            self._logger.debug(
+                f"Default termination: terminated={terminated}, truncated={truncated}"
+            )
 
         return done

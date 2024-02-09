@@ -6,8 +6,8 @@ from f110_gym.envs.track import Track
 Observation = Any
 Action = Any
 
-class Scene(ABC):
 
+class Scene(ABC):
     @abstractmethod
     def get_track(self) -> Track:
         raise NotImplementedError()

@@ -10,6 +10,7 @@ def get_git_info() -> dict[str, str]:
     branch = repo.active_branch.name
     return {"repo": reponame, "commit": sha, "branch": branch}
 
+
 def scatter_point_on_track(track, poses):
     import matplotlib.pyplot as plt
 
