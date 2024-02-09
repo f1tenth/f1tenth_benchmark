@@ -3,13 +3,14 @@ import warnings
 from datetime import datetime
 from typing import Any
 
-import numpy as np
+from f1tenth_benchmark.common.utils import get_git_info
 
 
 class Simulation:
     def __init__(self):
         self._metadata = {
             "creation_time": datetime.now().isoformat(),
+            **get_git_info(),
         }
 
         self._data = {}
@@ -23,7 +24,7 @@ class Simulation:
 
 
     def get(self, key: str) -> Any:
-        return self._data[key]
+            return self._data[key]
 
     def save(self, path: str) -> None:
         logging.info(f"Saving simulation data to {path}...")

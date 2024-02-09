@@ -16,7 +16,7 @@ class GymScene(Scene):
         self._is_done = False
 
     def get_track(self) -> Track:
-        return self._env.track
+        return self._env.unwrapped.track
 
     def reset(self) -> None:
         self._is_done = False

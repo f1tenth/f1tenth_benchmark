@@ -1,6 +1,5 @@
 import logging
-import warnings
-from typing import Type, Callable
+from tqdm import tqdm
 
 import numpy as np
 
@@ -10,36 +9,41 @@ from f1tenth_benchmark.task.task import Task
 
 
 class Runner:
-    def __init__(self, task: Task, agent: Agent, log_dir: str | None = None):
+    def __init__(self, task: Task, agent: Agent, logger=None):
         self._task = task
         self._agent = agent
-        self._log_dir = log_dir
+        self._logger = logger
 
-        self._logger = logging.getLogger(__name__)
+        self._txt_logger = logging.getLogger(__name__)
 
-    def run(self, n_episodes: int) -> None:
+    def run(self, n_episodes: int) -> dict:
         agent = self._agent
+        monitor = self._task.monitor
 
-        while n_episodes > 0:
-            logging.info(f"Remaining {n_episodes} episodes...")
+        desclen, trunc = 35, "..."
+        desc = f"Agent: {agent.name}, Task: {self._task.name}"
+        desc = desc.ljust(desclen, " ")
+        desc = desc[:desclen - len(trunc)] + trunc if len(desc) > desclen else desc
 
+        all_metrics = {}
+        for i in tqdm(range(n_episodes), desc=desc):
             scene = self._task.get_next_scene()
             if scene is None:
-                logging.info("No more scenes available.")
+                self._txt_logger.info("No more scenes available. Stopping the benchmark.")
                 break
 
             sim = Simulation()
 
-            agent_state = agent.reset(scene=scene)
+            agent.reset(scene=scene)
             scene.reset()
 
             scene_state = scene.get_state()
-            sim.add(state=scene_state, action=None, agent_state=agent_state)
+            sim.add(state=scene_state, action=None)
 
             while not scene.is_done():
                 agent_obs = scene.observe("agent_0")
-                action, agent_state = agent(
-                    observation=agent_obs, agent_state=agent_state
+                action = agent(
+                    observation=agent_obs
                 )
 
                 actions = np.array([action])
@@ -48,12 +52,18 @@ class Runner:
                 sim.add(
                     state=scene.get_state(),
                     action=action,
-                    agent_state=agent_state,
                 )
 
-            metrics = self._task.monitor(sim)
+            metrics = monitor(scene=scene, sim=sim)
             sim.add(metrics=metrics)
 
-            sim.save(f"{self._log_dir}/episode_{n_episodes}")
+            for key, value in metrics.items():
+                if key in all_metrics:
+                    all_metrics[key].append(value)
+                else:
+                    all_metrics[key] = [value]
 
+            # self._logger.log(sim)
             n_episodes -= 1
+
+        return all_metrics

@@ -6,12 +6,17 @@ from f1tenth_benchmark.scene.scene import Scene
 
 class Agent(ABC):
 
+    @property
     @abstractmethod
-    def __call__(self, observation, agent_state):
+    def name(self) -> str:
         raise NotImplementedError()
 
     @abstractmethod
-    def reset(self, scene: Scene) -> Any | None:
+    def __call__(self, observation):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def reset(self, scene: Scene) -> None:
         raise NotImplementedError()
 
     @abstractmethod

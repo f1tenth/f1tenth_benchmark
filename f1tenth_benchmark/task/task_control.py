@@ -2,6 +2,7 @@ import collections
 import logging
 from typing import Callable
 
+import matplotlib.pyplot as plt
 import numpy as np
 from f1tenth_planning.utils.utils import nearest_point
 
@@ -14,18 +15,22 @@ import gymnasium as gym
 
 class TaskControl(Task):
     """
-    Benchmark task to assess the control capabilities of the agent.
+    The control task is a simple task where the agent needs to follow a predefined raceline.
+    - Scenes: The scenes are defined by a sequence of poses along the raceline.
+    - Monitor: The monitor evaluates the tracking error and the completion rate.
     """
 
-    def __init__(self, render_mode: str = "human_fast"):
+    def __init__(self, render_mode: str | None = "human_fast"):
         self._config = {
+            "name": self.name,
             "env": {
                 "map": "Spielberg",
                 "num_agents": 1,
                 "control_input": "speed",
                 "observation_config": {"type": "kinematic_state"},
             },
-            "n_pos_track": 5,
+            "n_pos_track": 10,
+            "timeout": 6000,
         }
         self._metrics = {}
 
@@ -37,11 +42,21 @@ class TaskControl(Task):
 
         # create a queue of ids to starting poses along the centerline
         n_points = self._config["n_pos_track"]
-        raceline = self._env.track.raceline
-        ids = np.linspace(0, len(raceline.xs) - 1, n_points, dtype=int)
-        self._poses = collections.deque([[raceline.xs[i], raceline.ys[i], raceline.yaws[i]] for i in ids])
+        raceline = self._env.unwrapped.track.raceline
+        ids = np.linspace(0, len(raceline.xs) - 1, n_points + 1, dtype=int)[:-1]
+        self._poses = np.array([[raceline.xs[i], raceline.ys[i], raceline.yaws[i]] for i in ids])
+        self._current_scene_id = 0
+
+        # task termination
+        self._term_fns = OnAnyTermination(fns=[
+            Timeout(max_steps=6000),
+            DefaultTermination(),
+            AnyCrossedFinishLine()
+        ])
 
         self._logger = logging.getLogger(__name__)
+
+
 
     @property
     def name(self):
@@ -51,34 +66,37 @@ class TaskControl(Task):
     def config(self):
         return self._config
 
-    @property
-    def metrics(self):
-        return self._monitor.metrics
+    def reset(self):
+        self._current_scene_id = 0
 
     def get_next_scene(self) -> GymScene | None:
         if len(self._poses) == 0:
             return None
 
-        next_pose = self._poses.popleft()
-        term_fn = OnAnyTermination(fns=[
-            Timeout(max_steps=6000),
-            DefaultTermination(),
-            AnyCrossedFinishLine()
-        ])
-        return GymScene(self._env, options={"poses": np.array([next_pose])}, termination_fn=term_fn)
+        next_pose = self._poses[self._current_scene_id]
+        self._current_scene_id += 1
+
+        return GymScene(self._env, options={"poses": np.array([next_pose])}, termination_fn=self._term_fns)
 
     @property
     def monitor(self) -> Callable[[Simulation], dict]:
-        def evaluate(sim: Simulation):
-            # todo: this is quite slow for now, need to optimize
-            state = sim.get("state")
-            xs = [s["agent_0"]["pose_x"] for s in state]
-            ys = [s["agent_0"]["pose_y"] for s in state]
-            poss = np.array([xs, ys]).T
+        def evaluate(scene: GymScene, sim: Simulation):
+            """
+            Evaluate the simulation by computing the tracking error and the completion rate.
+            """
+            all_states = sim.get("state")
 
-            track = self._env.track
+            # extract xy-trajectory
+            xs = [s["agent_0"]["pose_x"] for s in all_states]
+            ys = [s["agent_0"]["pose_y"] for s in all_states]
+            positions = np.array([xs, ys]).T
+
+            # extract xy-raceline
+            track = scene.get_track()
             raceline_xys = np.array([track.raceline.xs, track.raceline.ys]).T
-            nearests = [nearest_point(poss[i], raceline_xys) for i in range(len(poss))]
+
+            # compute the nearest point on the raceline for each position
+            nearests = [nearest_point(positions[i], raceline_xys) for i in range(len(positions))]
 
             nearest_ids = np.array([near[3] for near in nearests])
             dist_to_them = [near[1] for near in nearests]
