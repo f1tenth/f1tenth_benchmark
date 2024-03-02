@@ -3,7 +3,7 @@ import warnings
 from datetime import datetime
 from typing import Any
 
-from f1tenth_benchmark.common.utils import get_git_info
+from f1tenth_benchmark.utils import get_git_info
 
 
 class Simulation:
