@@ -1,5 +1,5 @@
 import abc
-
+from .scene import Scene
 
 class Agent(abc.ABC):
     @abc.abstractmethod

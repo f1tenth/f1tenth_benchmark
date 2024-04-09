@@ -1,6 +1,7 @@
 import abc
 from abc import abstract, abstractmethod
 from typing import Dict
+from .trace_manager import TraceManager
 
 class Measure(abc.ABC):
     cumulative_score: float
