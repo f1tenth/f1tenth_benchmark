@@ -1,19 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import List, Iterator
-from f110_gym import F110Env
-from f110_gym.envs.track import Track
+from typing import Iterator, Tuple
+from f1tenth_gym import F110Env
+from f1tenth_gym.envs.track import Track
 
 from .termination import TerminationCondition
-from .measure import Measure
+from .measure import MultiStepMetric
 
 
 class Scene():
     def __init__(self, config) -> None:
         self.config = config
         
-    def reset(self, env: F110Env) -> None:
+    def reset(self, env: F110Env) -> Tuple[dict, dict]:
         env.configure(self.config)
-        env.reset(options={'poses': self.config['poses']})
+        obs, info = env.reset(options={'poses': self.config['poses']})
+        return obs, info
     
 
 class SceneGenerator(ABC):
@@ -31,7 +32,7 @@ class SceneGenerator(ABC):
 class SimpleSceneGenerator(SceneGenerator):
     def __init__(self, seed: int, length: int) -> None:
         import numpy as np
-        from f110_gym.envs.reset.masked_reset import AllTrackResetFn
+        from f1tenth_gym.envs.reset.masked_reset import AllTrackResetFn
         self.seed = seed
         self.length = length
         self.default_config = F110Env.default_config()

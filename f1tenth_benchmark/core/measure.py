@@ -3,7 +3,9 @@ from abc import abstract, abstractmethod
 from typing import Dict
 from .trace_manager import TraceManager
 
-class Measure(abc.ABC):
+
+class MultiStepMetric(abc.ABC):
+    trace_manager: TraceManager
     cumulative_score: float
     historical_scores: Dict[float, float]
     agent_id: str
@@ -11,10 +13,6 @@ class Measure(abc.ABC):
     @abc.abstractmethod
     def evaluate(self, obs) -> float:
         raise NotImplementedError()
-
-
-class MultiStepMetric(Measure):
-    trace_manager: TraceManager
 
     def register_trace_manager(self, trace_manager):
         self.trace_manager = trace_manager

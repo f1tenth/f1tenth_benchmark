@@ -1,9 +1,9 @@
 import abc
 from typing import List
-from .measure import Measure
+from .measure import MultiStepMetric
 
 class TerminationCondition(abc.ABC):
-    measures: List[Measure]
+    measures: List[MultiStepMetric]
 
     @abc.abstractmethod
     def is_done(self, obs: dict) -> bool:
