@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Iterator, Tuple
-from f1tenth_gym import F110Env
+from f1tenth_gym.envs import F110Env
 from f1tenth_gym.envs.track import Track
 
 from .termination import TerminationCondition
@@ -24,6 +24,9 @@ class SceneGenerator(ABC):
     def __len__(self) -> int:
         return self.length
 
+    def __iter__(self) -> Iterator[Scene]:
+        return self.generate()
+    
     @abstractmethod
     def generate(self, config: dict) -> Scene:
         raise NotImplementedError()
@@ -37,13 +40,15 @@ class SimpleSceneGenerator(SceneGenerator):
         self.length = length
         self.default_config = F110Env.default_config()
         self.random_state = np.random.RandomState(seed)
-        self.track = Track.from_track_name(self.default_config['map_name'])
+        self.track = Track.from_track_name(self.default_config['map'])
         self.pose_generator = AllTrackResetFn(self.track.centerline, self.default_config['num_agents'])
 
-    def generate(self, config: dict) -> Iterator[Scene]:
+    def generate(self) -> Iterator[Scene]:
         for _ in range(len(self)):
             reset_poses = self.pose_generator.sample()
-            config['poses'] = reset_poses
-            yield Scene(config)
+            self.default_config['poses'] = reset_poses
+            yield Scene(self.default_config)
+        # # Terminate the generator
+        # raise StopIteration()
 
 

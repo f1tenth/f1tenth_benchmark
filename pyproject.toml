@@ -11,7 +11,8 @@ python = ">=3.9,<3.12"
 gymnasium = "^0.29.1"
 plotly = "^5.19.0"
 matplotlib = "^3.8.3"
-f1tenth-gym = {git = "git@github.com:f1tenth/f1tenth_gym", branch = "v1.0.0"}
+f1tenth_gym = {git = "git@github.com:f1tenth/f1tenth_gym", branch = "v1.0.0"}
+f1tenth_planning = {git = "git@github.com:f1tenth/f1tenth_planning", branch = "v1.0.0"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
@@ -21,3 +22,10 @@ pytest = "^8.0.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -vv"
+testpaths = [
+    "tests",
+]
