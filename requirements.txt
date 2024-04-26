@@ -1,0 +1,6 @@
+gymnasium
+git+https://github.com/f1tenth/f1tenth_planning@dev-controller-interface#egg=f1tenth_planning
+plotly
+matplotlib
+GitPython
+tqdm
