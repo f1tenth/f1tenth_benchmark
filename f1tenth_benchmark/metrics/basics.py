@@ -9,5 +9,10 @@ class StepCounter(MultiStepMetric):
         self.cumulative_score += 1
         return 1
 
+    def reset(self) -> None:
+        super().reset()
+        self.cumulative_score = 0
+    
+
     def get_final_score(self) -> Any:
-        return len(self.trace_manager)
+        return self.cumulative_score

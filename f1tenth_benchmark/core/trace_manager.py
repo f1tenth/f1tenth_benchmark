@@ -9,6 +9,9 @@ class TraceManager:
 
     def __init__(self):
         self.historic_trace = []
+
+    def __len__(self):
+        return len(self.historic_trace)
     
     def reset(self):
         self.historic_trace = []
