@@ -11,8 +11,11 @@ python = ">=3.9,<3.12"
 gymnasium = "^0.29.1"
 plotly = "^5.19.0"
 matplotlib = "^3.8.3"
-f1tenth_gym = {git = "git@github.com:f1tenth/f1tenth_gym", branch = "v1.0.0"}
-f1tenth_planning = {git = "git@github.com:f1tenth/f1tenth_planning", branch = "v1.0.0"}
+f1tenth_gym = {git = "https://github.com/f1tenth/f1tenth_gym", branch = "v1.0.0"}
+f1tenth_planning = {git = "https://github.com/f1tenth/f1tenth_planning", branch = "v1.0.0"}
+sphinx = "^7.2.6"
+numpydoc = "^1.6.0"
+pydata-sphinx-theme = "^0.15.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
